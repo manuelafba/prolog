@@ -30,13 +30,11 @@ gerou(X, Y) :- pai(X, Y); mãe(X, Y).
 irmao(A, B) :- gerou(X, A), 
     gerou(X, B), 
     homem(A), 
-    homem(B), 
     A \== B.
 
 irma(A, B) :- gerou(X, A), 
     gerou(X, B), 
     mulher(A), 
-    mulher(B), 
     A \== B.
 
 tio(A, B) :- irmao(A, C), gerou(C, B).
