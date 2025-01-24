@@ -10,14 +10,7 @@ no_folha(X) :- (no(_, _, X); no(X, _, _)),
     			\+no(_, X, _),             
     			X \== nil.
 
-filhos(X) :- no(E, X, D), E \== nil, D \== nil,
-    		write("Filho da esquerda: "), write(E), nl,
-    		write("Filho da direita: "), write(D), nl, !.
-filhos(X) :- no(E, X, nil), E \== nil,
-    		write("Somente filho da esquerda: "), write(E), !.
-filhos(X) :- no(nil, X, D), D \== nil,
-    		write("Somente filho da direita: "), write(D), !.
-filhos(_X) :- write("Não possui filhos").
+filhos(No, E, D) :- no(E, No, D).
 
 pre_ordem :- raiz(No), pre_ordem(No).
 pre_ordem(nil) :- !.
@@ -36,31 +29,35 @@ pos_ordem(nil) :- !.
 pos_ordem(No) :- no_folha(No), visita(No), !.
 pos_ordem(No) :- no(E, No, D), pos_ordem(E), pos_ordem(D), visita(No).
 
-% Caso base: raiz
-nivel(No, 0) :- raiz(No), !.
+nivel(No, R) :- raiz(Raiz), nivel(No, Raiz, R).
+nivel(No, No, 1) :- !.
+nivel(No, AUX, R) :- filhos(AUX, E, _),
+    nivel(No, E, R1),
+    R is R1 + 1, !.
+nivel(No, AUX, R) :- filhos(AUX, _, D),
+    nivel(No, D, R1),
+    R is R1 + 1, !.
 
-% Caso recursivo: verifica a subárvore esquerda
-nivel(No, Nivel) :-
-    no(E, Pai, _),
-    nivel(Pai, NivelPai),
-    No = E,
-    Nivel is NivelPai + 1, !.
-
-% Caso recursivo: verifica a subárvore direita
-nivel(No, Nivel) :-
-    no(_, Pai, D),
-    nivel(Pai, NivelPai),
-    No = D,
-    Nivel is NivelPai + 1.
-
-grau(nil, 0) :- !.
-grau(No, 2) :- no(E, No, D), E \== nil, D \== nil, !.
-grau(No, 1) :- no(E, No, _), E \== nil, !.
-grau(No, 1) :- no(_, No, D), D \== nil, !.
-grau(N, 0) :- no(nil, N, nil), !.
+grau(No, 0) :- no_folha(No), !.
+grau(No, 1) :- no(nil, No, D), D \== nil, !.
+grau(No, 1) :- no(E, No, nil), E \== nil, !.
+grau(no , 2) :- !.
 
 irmao(nil, nil) :- !.
-irmao(No, Irmao) :- no(No, _, Irmao), Irmao \== nil, !.
-irmao(No, Irmao) :- no(Irmao, _, No), Irmao \== nil, !.
-irmao(_, nil).
+irmao(No, Irmao) :- no(Irmao, _, No), Irmao \== No, !.
+irmao(No, Irmao) :- no(No, _, Irmao), Irmao \== No, !.
+
+altura(R) :- raiz(No), altura(No, R).
+altura(No, 0) :- no_folha(No), !.
+altura(nil, 0) :- !.
+altura(No, R) :- no(E, No, D), altura(E, R1), altura(D, R2), M is max(R1, R2), R is M + 1.
+
+mais_a_esquerda(R) :- raiz(No), mais_a_esquerda(No, R).
+mais_a_esquerda(No, No) :- no(nil, No, _), !.
+mais_a_esquerda(No, No) :- no_folha(No), !.
+mais_a_esquerda(No, R) :- no(E, No, _), mais_a_esquerda(E, R).
+
+
+
+
 
